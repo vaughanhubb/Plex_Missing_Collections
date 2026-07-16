@@ -60,9 +60,7 @@ The application uses a `config.json` file (located in the project root) for conf
 ### Getting API Keys
 
 1. **Plex Token**: 
-   - Go to your Plex account page: https://plex.tv/api/token
-   - Enter your password when prompted to generate a token
-   - Copy the returned token
+   - log in to your Plex Web App, select any individual media item, click Get Info, choose View XML, and copy the value at the very end of the URL where it says X-Plex-Token=
 
 2. **TMDB API Key**:
    - Visit https://www.themoviedb.org/settings/api
@@ -76,7 +74,7 @@ Instead of editing `config.json` directly, you can:
 1. Launch the application
 2. Go to **Settings** → **Edit Config** menu item
 3. Enter or modify the configuration values in the dialog window
-4. Click "Save" and the app will automatically refresh
+4. Click "Save" and the app will automatically apply new config ready for running search
 
 ## Usage
 
