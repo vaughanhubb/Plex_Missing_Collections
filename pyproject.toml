@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "plex-season-checker"
+version = "2.0.0"
+description = "Find missing seasons and episodes in a Plex TV library using TMDb"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.9"
+dependencies = [
+    "plexapi>=4.15",
+    "requests>=2.31",
+    "ttkbootstrap>=1.10",
+    "pillow>=10.1",
+    "platformdirs>=3.0",
+    "keyring>=24.0",
+]
+
+[project.scripts]
+plex-season-checker = "main:main"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+py-modules = ["main", "artwork", "config_manager", "models", "plex_api", "scanner", "tmdb_api", "widgets"]

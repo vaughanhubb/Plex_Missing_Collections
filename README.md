@@ -1,23 +1,24 @@
 # Plex Season Checker
 
-A Python GUI application that scans your Plex TV library and identifies missing seasons by comparing against TMDB's comprehensive season data.
+A Python GUI application that scans your Plex TV library and identifies missing seasons **and missing episodes** by comparing against TMDb's season and episode data.
 
 [Future Enhancements - Hopefully....maybe.....I'll Think About it]
-- Identify Missing Episodes
 - Identify Missing Movies from Collections
-- Improved UI
 
 ## Features
 
-- **Automatic Scan**: Iterates through all your Plex TV shows to check for missing seasons
-- **Visual Interface**: Clean Tkinter-based GUI with ttkbootstrap styling
-- **Progress Tracking**: Real-time progress bar showing scan progress
-- **Easy Configuration**: Edit Plex credentials and API keys via Settings menu
-- **Cancel Support**: Stop the scan at any time using the Cancel button
+- **Missing seasons and episodes**: Every show is compared season by season against TMDb. Only seasons and episodes that have already aired are counted, and specials (Season 0) are ignored
+- **Poster library view**: Shows appear as a grid of their Plex posters. Badges summarise what is missing, and hovering over a poster shows a badge for each missing season (red) and each season with missing episodes (amber)
+- **Show details**: Click a poster to see every season with its status. Seasons with gaps expand to list each missing episode with its title and air date
+- **Log tab**: A colour-coded list of every show checked and its result. Double-click a row to open its details
+- **Search and filters**: Filter the library by title or by status (missing seasons, missing episodes, complete, unmatched)
+- **Fast, responsive scanning**: Shows are checked in parallel in the background, with a progress bar and the option to cancel
+- **Accurate matching**: Uses the TMDb ID stored in your Plex metadata where available, and falls back to a title search otherwise
+- **Secure settings**: Credentials are kept in your OS credential store (Windows Credential Manager, macOS Keychain or Secret Service on Linux)
 
 ## Requirements
 
-- Python 3.8 or higher
+- Python 3.9 or higher
 - pip
 - tkinter (included with standard Python installation)
 
@@ -47,15 +48,23 @@ The application requires:
 
 ## Configuration
 
-The application uses a `config.json` file (located in the project root) for configuration:
+Open **⚙ Settings** in the app (it opens automatically on first launch) and enter:
 
-```json
-{
-  "plex_token": "your-plex-api-token",
-  "server_url": "http://localhost:32400",
-  "tmdb_api_key": "your-tmdb-api-key"
-}
-```
+| Setting | Description |
+|---|---|
+| Plex server URL | e.g. `http://localhost:32400` |
+| Plex token | See below |
+| TMDb API key | Either the v3 API key or the v4 read access token |
+
+### Where settings are stored
+
+- **Server URL**: `settings.json` in your per-user config directory
+  - Windows: `%LOCALAPPDATA%\PlexMissingCollections\settings.json`
+  - macOS: `~/Library/Application Support/PlexMissingCollections/settings.json`
+  - Linux: `~/.config/PlexMissingCollections/settings.json`
+- **Plex token and TMDb key**: your OS credential store, under the service name `PlexMissingCollections`. If no credential store is available, they fall back to `settings.json`.
+
+If a `config.json` from an earlier version exists in the project root, it is imported automatically on first launch. After that it is no longer used and can be deleted.
 
 ### Getting API Keys
 
@@ -68,14 +77,6 @@ The application uses a `config.json` file (located in the project root) for conf
    - Accept the terms of use
    - Copy your API key
 
-### Using the Settings Menu
-
-Instead of editing `config.json` directly, you can:
-1. Launch the application
-2. Go to **Settings** → **Edit Config** menu item
-3. Enter or modify the configuration values in the dialog window
-4. Click "Save" and the app will automatically apply new config ready for running search
-
 ## Usage
 
 ### Running the Application
@@ -85,30 +86,38 @@ Start the application using:
 python src/main.py
 ```
 
+Or, after `pip install -e .`, run:
+```bash
+plex-season-checker
+```
+
 ### After Launch
 
-1. Configure your Plex connection via **Settings** → **Edit Config**
-2. Click **"Search for Missing Seasons"** to begin scanning
-3. View results in the main window showing each show and its missing seasons
-4. Use the progress bar to track scan progress
-5. Click **"Cancel Search for Missing Seasons"** to stop at any time
+1. Configure your Plex connection via **⚙ Settings**
+2. Click **▶ Scan Library** to begin scanning
+3. Watch posters appear in the **Library** tab as each show is checked. The stat tiles keep running totals
+4. Hover over a poster to see its missing seasons and episodes, then click it for the full breakdown
+5. Switch to the **Log** tab for a list view of every result
+6. Click **Cancel** to stop at any time
 
-### Viewing Results
+### Known limitations
 
-The application displays:
-- Show name with missing seasons (e.g., "Breaking Bad: Missing Season 4")
-- Error messages if a show cannot be checked
-- Overall completion status at the bottom
+- Comparisons use TMDb's default episode order. Shows that Plex orders differently (e.g. absolute or DVD order for some anime) may report false gaps
+- A multi-episode file (e.g. `S01E01-E02`) is indexed by Plex under its first episode only, so the second episode may be reported as missing
 
 ## Project Structure
 
 ```
 Plex_Missing_Collections/
 ├── src/
-│   ├── main.py           # Main application entry point
-│   ├── plex_api.py       # Plex API wrapper and season checking logic
-│   └── config_manager.py # Configuration file handler
-├── config.json           # User configuration (credentials)
+│   ├── main.py           # Application window, scan orchestration
+│   ├── widgets.py        # Poster grid, log view, show detail and settings dialogs
+│   ├── artwork.py        # Poster card / hover overlay rendering (Pillow)
+│   ├── scanner.py        # Compares Plex against TMDb per show
+│   ├── models.py         # Show / season / episode result types
+│   ├── plex_api.py       # Plex server access
+│   ├── tmdb_api.py       # TMDb API client
+│   └── config_manager.py # Settings file + OS credential store
 ├── pyproject.toml        # Project metadata and dependencies
 └── README.md             # This file
 ```

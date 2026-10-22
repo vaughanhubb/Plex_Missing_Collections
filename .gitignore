@@ -2,3 +2,5 @@
 .vscode/settings.json
 .vscode/launch.json
 config.json
+__pycache__/
+*.egg-info/
